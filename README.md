@@ -5,16 +5,18 @@ This repro demonstrates how a combination of tools...
 - pnpm
 - jest
 - typescript
-  ...fail to be able to run a simple suite which has no obvious complexity but seems to create a circular module issue.
+  ...choke on a suite with no obvious complexity but which seems to create a circular dependency.
 
-## A working call
+## Working code
 
-$ It's possible to demonstrate that there's nothing wrong with the actual code path. Running the following performs exactly as expected...
+There's apparently nothing wrong with the code being invoked. Running the [exampleThrow.ts](modules/keystore/src/exampleThrow.ts) script performs exactly as expected...
 
 ```
 $ npx ts-node modules/keystore/src/exampleThrow.ts
 All is well
 ```
+
+Running `pnpm recursive exec -- tsc --noEmit` to check all the typescript passes cleanly too. Successful compilation is checked as part of the `qa` task in the project.
 
 ## The error
 
@@ -35,7 +37,7 @@ The 'offending' line is in the deliberately trivial `S3Keystore`. Attempting to 
   }
 ```
 
-The 'not a constructor' error associated with a module alias like this is normally owing to a circularity issue meaning that `NotFoundError` was not defined before it was used, but according to [dpdm](https://www.npmjs.com/package/dpdm) there is no circularity issue (circularity is checked before running tests in the `qa` task).
+The 'not a constructor' error associated with a module alias like this is normally owing to a circularity issue meaning that `NotFoundError` was not defined before it was used, but according to [dpdm](https://www.npmjs.com/package/dpdm) there is no circularity issue (circularity is checked before running tests as part of the `qa` task).
 
 ## Recreating the error
 
